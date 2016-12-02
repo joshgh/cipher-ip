@@ -52,19 +52,13 @@ function cipher_form_submit($form, &$form_state) {
     if ($direction === 'left') {
         $shift_value = 26 - $shift_value;
     }
-    $phrase = $form_state['values']['phrase'];
+    $phrase = strtolower($form_state['values']['phrase']);
 
     $plain_array = str_split($phrase);
     $encrypted_array = array();
     foreach ($plain_array as $character) {
         $ascii_val = ord($character);
-        if ($ascii_val >= 65 && $ascii_val <= 90) {
-            $new_ascii = $ascii_val + $shift_value;
-            if ($new_ascii > 90) {
-                $new_ascii = $new_ascii % 91 + 65;
-            }
-            $encrypted_array[] = chr($new_ascii);
-        } elseif ($ascii_val >= 97 && $ascii_val <= 122) {
+        if ($ascii_val >= 97 && $ascii_val <= 122) {
             $new_ascii = $ascii_val + $shift_value;
             if ($new_ascii > 122) {
                 $new_ascii = $new_ascii % 123 + 97;
