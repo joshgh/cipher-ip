@@ -40,7 +40,7 @@ function cipher_form() {
         '#title' => 'Phrase',
         '#type' => 'textfield',
         '#description' => t('Enter the phrase you would like to be encrypted'),
-        '#element_validate' => array('element_validate_ascii_printable'),
+        '#element_validate' => array('element_validate_phrase'),
         '#required' => TRUE,
     );
 
@@ -52,7 +52,7 @@ function cipher_form() {
     return $form;
 }
 
-function element_validate_ascii_printable($element) {
+function element_validate_phrase($element) {
     if (preg_match('/[^a-zA-Z!?.,;\' ]/', $element['#value'])) {
         form_error($element, t('Use only letters and basic punctuation'));
     }
