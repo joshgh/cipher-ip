@@ -49,8 +49,33 @@ function cipher_form() {
 function cipher_form_submit($form, &$form_state) {
     $shift_value = $form_state['values']['shift_value'];
     $direction = $form_state['values']['direction'];
+    if ($direction === 'left') {
+        $shift_value = 26 - $shift_value;
+    }
     $phrase = $form_state['values']['phrase'];
-    $_SESSION['encrypted_phrase'] = $phrase;
+
+    $plain_array = str_split($phrase);
+    $encrypted_array = array();
+    foreach ($plain_array as $character) {
+        $ascii_val = ord($character);
+        if ($ascii_val >= 65 && $ascii_val <= 90) {
+            $new_ascii = $ascii_val + $shift_value;
+            if ($new_ascii > 90) {
+                $new_ascii = $new_ascii % 91 + 65;
+            }
+            $encrypted_array[] = chr($new_ascii);
+        } elseif ($ascii_val >= 97 && $ascii_val <= 122) {
+            $new_ascii = $ascii_val + $shift_value;
+            if ($new_ascii > 122) {
+                $new_ascii = $new_ascii % 123 + 97;
+            }
+            $encrypted_array[] = chr($new_ascii);
+        } else {
+            $encrypted_array[] = chr($ascii_val);
+        }
+    }
+
+    $_SESSION['encrypted_phrase'] = implode($encrypted_array);
     $form_state['redirect'] = 'cipher_result';
 }
 
