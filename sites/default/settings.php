@@ -253,7 +253,7 @@ $databases = array (
       'username' => 'cipher',
       'password' => 'cipher',
       'host' => '127.0.0.1',
-      'port' => '',
+      'port' => '8889',
       'driver' => 'mysql',
       'prefix' => '',
     ),
