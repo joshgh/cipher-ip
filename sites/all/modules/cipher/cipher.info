@@ -1,0 +1,5 @@
+name = Cipher
+description = Creates a page to encrypt input text using a shift cipher
+package = Epicodus Modules
+core = 7.x
+files[] = cipher.module
