@@ -9,9 +9,24 @@ function cipher_menu() {
         'type' => MENU_NORMAL_ITEM,
     );
 
+    $items['cipher_decrypt'] = array(
+        'title' => 'Cipher Decrypt',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('cipher_decrypt_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+
     $items['cipher_result'] = array(
         'title' => 'Cipher Results',
         'page callback' => 'cipher_result_display',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+
+    $items['cipher_decrypt_result'] = array(
+        'title' => 'Cipher Decryption Results',
+        'page callback' => 'cipher_decrypt_result_display',
         'access callback' => TRUE,
         'type' => MENU_CALLBACK,
     );
@@ -47,6 +62,39 @@ function cipher_form() {
     $form['submit'] = array(
         '#type' => 'submit',
         '#value' => 'Encrypt',
+    );
+
+    return $form;
+}
+
+function cipher_decrypt_form() {
+    $form['shift_value'] = array(
+        '#title' => 'Shift Value Used',
+        '#type' => 'textfield',
+        '#description' => t('Enter the shift amount which was used in the cipher'),
+        '#element_validate' => array('element_validate_integer_positive'),
+        '#required' => TRUE,
+    );
+
+    $form['direction'] = array(
+        '#title' => 'Shift Direction Used',
+        '#type' => 'textfield',
+        '#description' => t('Enter the direction the text was shifted (left or right)'),
+        '#element_validate' => array('element_validate_direction'),
+        '#required' => TRUE,
+    );
+
+    $form['phrase'] = array(
+        '#title' => 'Encrypted Phrase',
+        '#type' => 'textfield',
+        '#description' => t('Enter the encrypted phrase'),
+        '#element_validate' => array('element_validate_phrase'),
+        '#required' => TRUE,
+    );
+
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Decrypt',
     );
 
     return $form;
@@ -91,6 +139,42 @@ function cipher_form_submit($form, &$form_state) {
     $form_state['redirect'] = 'cipher_result';
 }
 
+function cipher_decrypt_form_submit($form, &$form_state) {
+    $shift_value = $form_state['values']['shift_value'] % 26;
+    $direction = $form_state['values']['direction'];
+    if ($direction === 'left') {
+        $direction = 'right';
+    } elseif ($direction === 'right') {
+        $direction = 'left';
+    }
+    if ($direction === 'left') {
+        $shift_value = 26 - $shift_value;
+    }
+    $phrase = strtolower($form_state['values']['phrase']);
+
+    $encoded_array = str_split($phrase);
+    $cleartext_array = array();
+    foreach ($encoded_array as $character) {
+        $ascii_val = ord($character);
+        if ($ascii_val >= 97 && $ascii_val <= 122) {
+            $new_ascii = $ascii_val + $shift_value;
+            if ($new_ascii > 122) {
+                $new_ascii = $new_ascii % 123 + 97;
+            }
+            $cleartext_array[] = chr($new_ascii);
+        } else {
+            $cleartext_array[] = chr($ascii_val);
+        }
+    }
+
+    $_SESSION['cleartext_phrase'] = implode($cleartext_array);
+    $form_state['redirect'] = 'cipher_decrypt_result';
+}
+
 function cipher_result_display() {
     return $_SESSION['encrypted_phrase'];
+}
+
+function cipher_decrypt_result_display() {
+    return $_SESSION['cleartext_phrase'];
 }
