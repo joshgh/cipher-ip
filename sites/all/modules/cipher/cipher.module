@@ -32,6 +32,7 @@ function cipher_form() {
         '#title' => 'Shift Direction',
         '#type' => 'textfield',
         '#description' => t('Enter the direction to shift the text (left or right)'),
+        '#element_validate' => array('element_validate_direction'),
         '#required' => TRUE,
     );
 
@@ -57,8 +58,14 @@ function element_validate_ascii_printable($element) {
     }
 }
 
+function element_validate_direction($element) {
+    if (!preg_match('/^(left|right)$/', $element['#value'])) {
+        form_error($element, t('Must be "left" or "right"'));
+    }
+}
+
 function cipher_form_submit($form, &$form_state) {
-    $shift_value = $form_state['values']['shift_value'];
+    $shift_value = $form_state['values']['shift_value'] % 26;
     $direction = $form_state['values']['direction'];
     if ($direction === 'left') {
         $shift_value = 26 - $shift_value;
